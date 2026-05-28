@@ -1,166 +1,94 @@
-'use client'
-
-import { useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { Truck, Search, Shield, Clock, MapPin } from "lucide-react";
 
 export default function Home() {
-  // Booking States
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [district, setDistrict] = useState('Dhaka')
-  const [address, setAddress] = useState('')
-  const [cod, setCod] = useState('')
-  const [bookingLoading, setBookingLoading] = useState(false)
-  const [createdTrackingId, setCreatedTrackingId] = useState('')
-
-  // Tracking States
-  const [searchTrackingId, setSearchTrackingId] = useState('')
-  const [searchResult, setSearchResult] = useState<any>(null)
-  const [trackingLoading, setTrackingLoading] = useState(false)
-  const [trackingError, setTrackingError] = useState('')
-
-  // Handle Parcel Booking
-  const handleBooking = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setBookingLoading(true)
-    setCreatedTrackingId('')
-
-    const trackingId = 'FTX-' + Math.floor(100000 + Math.random() * 900000)
-
-    const { error } = await supabase.from('parcels').insert([
-      {
-        tracking_id: trackingId,
-        customer_name: name,
-        customer_phone: phone,
-        district: district,
-        address: address,
-        cod_amount: parseFloat(cod) || 0,
-        status: 'Pending'
-      }
-    ])
-
-    setBookingLoading(false)
-    if (error) {
-      alert('Error creating parcel: ' + error.message)
-    } else {
-      setCreatedTrackingId(trackingId)
-      setName('')
-      setPhone('')
-      setAddress('')
-      setCod('')
-    }
-  }
-
-  // Handle Parcel Tracking
-  const handleTracking = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchTrackingId) return
-    
-    setTrackingLoading(true)
-    setSearchResult(null)
-    setTrackingError('')
-
-    const { data, error } = await supabase
-      .from('parcels')
-      .select('*')
-      .eq('tracking_id', searchTrackingId.trim())
-      .single()
-
-    setTrackingLoading(false)
-    if (error) {
-      setTrackingError('Parcel not found. Please check the ID.')
-    } else {
-      setSearchResult(data)
-    }
-  }
-
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-12">
-      {/* Navbar */}
-      <nav className="bg-orange-600 text-white p-4 shadow-md mb-8">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold tracking-wider">FASTEX COURIER</h1>
-          <span className="text-sm bg-orange-700 px-3 py-1 rounded-full">BD Delivery Service</span>
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+      
+      {/* 1. NAVBAR SECTION */}
+      <nav className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Truck className="h-8 w-8 text-orange-500" />
+            <span className="text-2xl font-black text-slate-900 tracking-tight">
+              FASTEX<span className="text-orange-500">.</span>
+            </span>
+          </div>
+          <div className="hidden md:flex items-center gap-8 font-medium text-slate-600">
+            <a href="#" className="hover:text-orange-500 transition">Home</a>
+            <a href="#" className="hover:text-orange-500 transition">Track Parcel</a>
+            <a href="#" className="hover:text-orange-500 transition">Pricing</a>
+            <a href="#" className="hover:text-orange-500 transition">About Us</a>
+          </div>
+          <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-xl transition shadow-md shadow-orange-500/20">
+            Merchant Login
+          </button>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        {/* Track Parcel Section */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <h2 className="text-xl font-bold text-orange-600 mb-4">Track Your Parcel</h2>
-          <form onSubmit={handleTracking} className="flex gap-2 mb-4">
-            <input
-              type="text"
-              placeholder="Enter Tracking ID (e.g. FTX-123456)"
-              value={searchTrackingId}
-              onChange={(e) => setSearchTrackingId(e.target.value)}
-              className="flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:border-orange-500 text-sm"
-              required
-            />
-            <button type="submit" className="bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-orange-700">
-              {trackingLoading ? 'Searching...' : 'Track'}
-            </button>
-          </form>
+      {/* 2. HERO SECTION WITH TRACKING */}
+      <header className="bg-gradient-to-br from-orange-500 to-amber-600 text-white py-20 px-4 text-center relative overflow-hidden">
+        <div className="max-w-3xl mx-auto relative z-10">
+          <span className="bg-white/20 text-white text-sm font-semibold px-4 py-1.5 rounded-full backdrop-blur-sm inline-block mb-4">
+            ⚡ Fastest Delivery Across Bangladesh
+          </span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+            Your Package, Our Priority. <br />Delivered On Time.
+          </h1>
+          <p className="text-lg md:text-xl text-orange-50 opacity-90 mb-10 max-w-xl mx-auto">
+            Experience lightning-fast logistics and real-time tracking for all your personal and business needs.
+          </p>
 
-          {/* Tracking Result */}
-          {trackingError && <p className="text-red-500 text-sm">{trackingError}</p>}
-          {searchResult && (
-            <div className="mt-4 p-4 bg-orange-50 rounded-xl border border-orange-100 text-sm space-y-2">
-              <p><strong>Tracking ID:</strong> <span className="text-orange-600 font-bold">{searchResult.tracking_id}</span></p>
-              <p><strong>Customer:</strong> {searchResult.customer_name}</p>
-              <p><strong>Status:</strong> <span className="bg-orange-200 text-orange-800 px-2 py-0.5 rounded text-xs font-bold">{searchResult.status}</span></p>
-              <p><strong>Destination:</strong> {searchResult.district}</p>
-              <p><strong>COD Amount:</strong> {searchResult.cod_amount} TK</p>
+          {/* Tracking Box */}
+          <div className="bg-white p-2.5 rounded-2xl shadow-2xl max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 items-center">
+            <div className="flex items-center gap-3 pl-3 w-full text-slate-400">
+              <Search className="h-5 w-5 text-orange-500 shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Enter your Tracking ID (e.g., FTX-123456)..." 
+                className="w-full bg-transparent py-3 text-slate-800 outline-none placeholder:text-slate-400 font-medium"
+              />
             </div>
-          )}
+            <button className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-8 py-3.5 rounded-xl transition shrink-0 whitespace-nowrap">
+              Track Order
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* 3. FEATURES SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose Fastex Courier?</h2>
+          <p className="text-slate-500 max-w-md mx-auto">We provide the ultimate logistics experience with top-notch features.</p>
         </div>
 
-        {/* Book Parcel Section */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <h2 className="text-xl font-bold text-orange-600 mb-4">Book New Parcel</h2>
-          
-          {createdTrackingId && (
-            <div className="mb-4 p-4 bg-green-50 text-green-800 rounded-xl border border-green-200 text-sm">
-              🎉 Parcel Booked Successfully! <br />
-              Your Tracking ID is: <strong className="text-green-700 text-base">{createdTrackingId}</strong>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
+            <div className="bg-orange-50 h-12 w-12 rounded-xl flex items-center justify-center text-orange-500 mb-6">
+              <Clock className="h-6 w-6" />
             </div>
-          )}
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Next-Day Delivery</h3>
+            <p className="text-slate-500 leading-relaxed">We ensure your packages reach their destination within 24 hours inside Dhaka and major areas.</p>
+          </div>
 
-          <form onSubmit={handleBooking} className="space-y-3 text-sm">
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Customer Name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required />
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
+            <div className="bg-orange-50 h-12 w-12 rounded-xl flex items-center justify-center text-orange-500 mb-6">
+              <Shield className="h-6 w-6" />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Phone Number</label>
-              <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required />
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Secure Handling</h3>
+            <p className="text-slate-500 leading-relaxed">Safety is our standard. Every parcel is handled with maximum security and care.</p>
+          </div>
+
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
+            <div className="bg-orange-50 h-12 w-12 rounded-xl flex items-center justify-center text-orange-500 mb-6">
+              <MapPin className="h-6 w-6" />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">District</label>
-              <select value={district} onChange={(e) => setDistrict(e.target.value)} className="w-full px-3 py-2 border rounded-xl bg-white">
-                <option value="Dhaka">Dhaka</option>
-                <option value="Chittagong">Chittagong</option>
-                <option value="Sylhet">Sylhet</option>
-                <option value="Rajshahi">Rajshahi</option>
-                <option value="Khulna">Khulna</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Full Delivery Address</label>
-              <textarea value={address} onChange={(e) => setAddress(e.target.value)} className="w-full px-3 py-2 border rounded-xl h-16" required></textarea>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">COD Amount (TK)</label>
-              <input type="number" value={cod} onChange={(e) => setCod(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required />
-            </div>
-            <button type="submit" disabled={bookingLoading} className="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition-colors mt-2">
-              {bookingLoading ? 'Booking Parcel...' : 'Confirm Booking'}
-            </button>
-          </form>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">64 Districts Covered</h3>
+            <p className="text-slate-500 leading-relaxed">No matter how remote, our strong delivery network spans across all 64 districts of Bangladesh.</p>
+          </div>
         </div>
+      </section>
 
-      </div>
-    </main>
-  )
+    </div>
+  );
 }
